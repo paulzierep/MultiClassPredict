@@ -1,0 +1,133 @@
+ID	Batch Number	Stool 16s	BloodRNA	GCMS-norm to feces mass	Lipids_measure_ident_normalization	Metabolites_measure_ident_normalization	SCFA_norm to mg	Sample Condition	Negative Sequencing Control	Positive Sequencing Control	HP_Ag_Positivity (pos 1/neg 0)	Stool frequency	Bristol Scale	Age	Sex	Pre-existing conditions	Medication	Gastritis Yes/No (Therapy)	HP diagnosis/eradication in the past	Diet	Smoke	Alcohol
+0	1	PHP_C_1	PHP_C_1	PHP_GC_C_01	PHP_C_L1	PHP_C_aq1	PHP_EDC_C_01	Positive control	0.0	0.0	1.0	2xd	4	31.0	m	Yes	No	No	No	Mixed diet	Yes 	1-2 per week
+1	1	PHP_C_10	PHP_C_10	PHP_GC_C_10	PHP_C_L10	PHP_C_aq10	PHP_EDC_C_10	Negative control	0.0	0.0	0.0	1xd	4	29.0	m	No	No	No	No	Mixed diet	No	3-4 per week
+2	2	PHP_C_100	PHP_C_100					Positive control	0.0	0.0	1.0	1x per 2d	4	45.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+3	2	PHP_C_101	PHP_C_101					Negative control	0.0	0.0	0.0	1xd	3	24.0	w	No	No	No	No	Vegan	No	No
+4	2	PHP_C_102	PHP_C_102					Positive control	0.0	0.0	1.0	1xd	3	24.0	m	No	No	No	No	Mixed diet	No	No
+5	2	PHP_C_103	PHP_C_103					Negative control	0.0	0.0	0.0	1x per 2d	3	19.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+6	2	PHP_C_104	PHP_C_104					Positive control	0.0	0.0	1.0	1xd	6	62.0	w	Yes	Antihypertensive, Hormonal modulators, Antidepressant	No	No	Vegetarian	No	3-4 per week
+7	2	PHP_C_105	PHP_C_105					Negative control	0.0	0.0	0.0	1xd	2	47.0	w	No	No	No	No	Mixed diet	No	3-4 per week
+8	2	PHP_C_106	PHP_C_106					Negative control	0.0	0.0	0.0	2xd	4	24.0	w	Yes	Antiglaucoma	No	No	Vegetarian	No	1-2 per week
+9	2	PHP_C_107	PHP_C_107					Negative control	0.0	0.0	0.0	2xd	3	27.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+10	2	PHP_C_108	PHP_C_108					Negative control	0.0	0.0	0.0	1xd	6	25.0	w	No	No	No	No	Mixed diet	No	3-4 per week
+11	2	PHP_C_109	PHP_C_109					Negative control	0.0	0.0	0.0	1x per 2d	3	41.0	w	No	Antihypothyrodism	No	No	Vegetarian	No	1-2 per week
+12	1	PHP_C_11	PHP_C_11	PHP_GC_C_11	PHP_C_L11	PHP_C_aq11	PHP_EDC_C_11	Negative control	0.0	0.0	0.0	2xd	6	53.0	w	Yes	Antihypertensives	No	No	Mixed diet	No	1-2 per week
+13	2	PHP_C_110	PHP_C_110					Negative control	0.0	0.0	0.0	1x per 3d	4	54.0	w	No	No	No	No	Mixed diet	No	No
+14	2	PHP_C_111	PHP_C_111					Negative control	0.0	0.0	0.0	1xd	4	60.0	w	Yes	Antiasthmatic	No	No	Vegetarian	No	No
+15	2	PHP_C_112	PHP_C_112					Negative control	0.0	0.0	0.0	3xd	3	25.0	m	No	No	No	No	Mixed diet	No	5-6 per week
+16	2	PHP_C_114	PHP_C_114					Negative control	0.0	0.0	0.0	2xd	4	63.0	m	No	No	No	No	Mixed diet	No	7 per week
+17	2	PHP_C_115	PHP_C_115					Negative control	0.0	0.0	0.0	1x per 2d	3	21.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+18	2	PHP_C_116	PHP_C_116					Negative control	0.0	0.0	0.0	1xd	3	55.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+19	2	PHP_C_117	PHP_C_117					Negative control	0.0	0.0	0.0	1xd	6	57.0	m	Yes	Antimuscular spasms	No	No	Mixed diet	No	3-4 per week
+20	2	PHP_C_119	PHP_C_119					Positive control	0.0	0.0	1.0	2xd	3	45.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+21	1	PHP_C_12	PHP_C_12	PHP_GC_C_12	PHP_C_L12	PHP_C_aq12	PHP_EDC_C_12	Negative control	0.0	0.0	0.0	1xd	4	62.0	w	No	Antihypertensives, Statins	No	No	Mixed diet	Yes	1-2 per week
+22	2	PHP_C_121	PHP_C_121					Positive control	0.0	0.0	1.0	1xd	3	34.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+23	2	PHP_C_129	PHP_C_129					Positive control	0.0	0.0	1.0	1xd	4	60.0	w	No	Antihypothyrodism	No	No	Mixed diet	Yes	3-4 per week
+24	1	PHP_C_13	PHP_C_13	PHP_GC_C_13	PHP_C_L13	PHP_C_aq13	PHP_EDC_C_13	Negative control	0.0	0.0	0.0	1x per 2d	3	56.0	w	Yes	Insulin, Statins	No	No	Mixed diet	No	1-2 per week
+25	2	PHP_C_133	PHP_C_133					Positive control	0.0	0.0	1.0	1x per 3d	3	53.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+27	2	PHP_C_137	PHP_C_137					Positive control	0.0	0.0	1.0	1xd	4	48.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+28	2	PHP_C_138	PHP_C_138					Positive control	0.0	0.0	1.0	2xd	4	52.0	m	No	No	No	No	Mixed diet	No	3-4 per week
+29	1	PHP_C_14	PHP_C_14	PHP_GC_C_14	PHP_C_L14	PHP_C_aq14	PHP_EDC_C_14	Negative control	0.0	0.0	0.0	1xd	4	31.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+30	1	PHP_C_15	PHP_C_15	PHP_GC_C_15	PHP_C_L15	PHP_C_aq15	PHP_EDC_C_15	Negative control	0.0	0.0	0.0	1x per 3d	3	37.0	w	Yes	Yes	Yes	No	Mixed diet (no wheat or dairy)	No	1-2 per week
+31	2	PHP_C_156	PHP_C_156					Positive control	0.0	0.0	1.0	1xd	7	52.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+32	1	PHP_C_16	PHP_C_16	PHP_GC_C_16	PHP_C_L16	PHP_C_aq16	PHP_EDC_C_16	Negative control	0.0	0.0	0.0	1xd	4	21.0	m	No	No	No	No	Mixed diet	No	< 1 per week
+33	1	PHP_C_17	PHP_C_17	PHP_GC_C_17	PHP_C_L17	PHP_C_aq17	PHP_EDC_C_17	Positive control	0.0	0.0	1.0	1xd	4	30.0	m	No	No	No	No	Mixed diet	No	No
+34	1	PHP_C_18	PHP_C_18	PHP_GC_C_18	PHP_C_L18	PHP_C_aq18	PHP_EDC_C_18	Negative control	0.0	0.0	0.0	1xd	6	24.0	m	No	No	No	No	Mixed diet	No	< 1 per week
+35	1	PHP_C_19	PHP_C_19	PHP_GC_C_19	PHP_C_L19	PHP_C_aq19	PHP_EDC_C_19	Negative control	0.0	0.0	0.0	1xd	3	23.0	m	No	No	Yes	Yes 	Mixed diet	No	< 1 per week
+36	1	PHP_C_2	PHP_C_2	PHP_GC_C_02	PHP_C_L2	PHP_C_aq2	PHP_EDC_C_02	Negative control	0.0	0.0	0.0	2xd	3	23.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+37	1	PHP_C_20	PHP_C_20	PHP_GC_C_20	PHP_C_L20	PHP_C_aq20	PHP_EDC_C_20	Negative control	0.0	0.0	0.0	1x per 2d	3	28.0	m	No	No	No	No	Mixed diet (ketogenic)	Yes	< 1 per week
+38	1	PHP_C_21	PHP_C_21	PHP_GC_C_21	PHP_C_L21	PHP_C_aq21	PHP_EDC_C_21	Negative control	0.0	0.0	0.0	2xd	3	25.0	w	Yes	Antihistamines	No	Yes	Mixed diet	No	No
+39	1	PHP_C_22	PHP_C_22	PHP_GC_C_22	PHP_C_L22	PHP_C_aq22	PHP_EDC_C_22	Negative control	0.0	0.0	0.0	> 3 days	4	43.0	m	No	No	No	No	Mixed diet	No	7 per week
+40	1	PHP_C_23	PHP_C_23	PHP_GC_C_23	PHP_C_L23	PHP_C_aq23	PHP_EDC_C_23	Positive control	0.0	0.0	1.0	1xd	4	27.0	w	Yes	Levothyroxine	No	No	Mixed diet	No	1-2 per week
+41	1	PHP_C_24	PHP_C_24	PHP_GC_C_24	PHP_C_L24	PHP_C_aq24	PHP_EDC_C_24	Negative control	0.0	0.0	0.0	1xd	3	28.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+42	1	PHP_C_25	PHP_C_25	PHP_GC_C_25	PHP_C_L25	PHP_C_aq25	PHP_EDC_C_25	Negative control	0.0	0.0	0.0	1xd	2	24.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+43	1	PHP_C_26	PHP_C_26	PHP_GC_C_26	PHP_C_L26	PHP_C_aq26	PHP_EDC_C_26	Negative control	0.0	0.0	0.0	1xd	6	29.0	m	No	No	No	No	Mixed diet	No	No
+44	1	PHP_C_27	PHP_C_27	PHP_GC_C_27	PHP_C_L27	PHP_C_aq27	PHP_EDC_C_27	Negative control	0.0	0.0	0.0	2xd	3	23.0	w	No	No	No	No	Vegan	No	No
+45	1	PHP_C_28	PHP_C_28	PHP_GC_C_28	PHP_C_L28	PHP_C_aq28	PHP_EDC_C_28	Negative control	0.0	0.0	0.0	2xd	4	35.0	m	No	No	No	No	Mixed diet	Yes	< 1 per week
+46	1	PHP_C_3	PHP_C_3	PHP_GC_C_03	PHP_C_L3	PHP_C_aq3	PHP_EDC_C_03	Negative control	0.0	0.0	0.0	1xd	4	55.0	w	No 	Statins	No	No	Mixed diet	No	5-6 per week
+47	1	PHP_C_30	PHP_C_30	PHP_GC_C_30	PHP_C_L30	PHP_C_aq30	PHP_EDC_C_30	Negative control	0.0	0.0	0.0	1xd	4	31.0	w	No	Probiotics	No	No	Mixed diet	No	No
+48	1	PHP_C_31	PHP_C_31	PHP_GC_C_31	PHP_C_L31	PHP_C_aq31	PHP_EDC_C_31	Negative control	0.0	0.0	0.0	2xd	4	27.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+49	1	PHP_C_32	PHP_C_32	PHP_GC_C_32	PHP_C_L32	PHP_C_aq32	PHP_EDC_C_32	Negative control	0.0	0.0	0.0	1x per 2d	4	26.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+50	2	PHP_C_33	PHP_C_33					Negative control	0.0	0.0	0.0	1xd	4	24.0	m	No	No	No	No	Mixed diet	No	3-4 per week
+51	1	PHP_C_34	PHP_C_34	PHP_GC_C_34	PHP_C_L34	PHP_C_aq34	PHP_EDC_C_34	Negative control	0.0	0.0	0.0	1xd	4	26.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+52	1	PHP_C_35	PHP_C_35	PHP_GC_C_35	PHP_C_L35	PHP_C_aq35	PHP_EDC_C_35	Negative control	0.0	0.0	0.0	2xd	3, 4	57.0	w	Yes	Antihypertensives, Immunemodulator, Levothyroxine	No	Yes	Mixed diet	No	1-2 per week
+53	1	PHP_C_36	PHP_C_36	PHP_GC_C_36	PHP_C_L36	PHP_C_aq36	PHP_EDC_C_36	Negative control	0.0	0.0	0.0	2xd	3	28.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+54	1	PHP_C_37	PHP_C_37	PHP_GC_C_37	PHP_C_L37	PHP_C_aq37	PHP_EDC_C_37	Negative control	0.0	0.0	0.0	2xd	2	31.0	m	No	No	No	No	Mixed diet	No	No
+55	1	PHP_C_38	PHP_C_38	PHP_GC_C_38	PHP_C_L38	PHP_C_aq38	PHP_EDC_C_38	Positive control	0.0	0.0	1.0	1x per 3d	1	51.0	w	No	Levothyroxine, Antidepressant	No	No	Mixed diet	No	1-2 per week
+56	1	PHP_C_39	PHP_C_39	PHP_GC_C_39	PHP_C_L39	PHP_C_aq39	PHP_EDC_C_39	Negative control	0.0	0.0	0.0	1xd	1	41.0	w	No	Antidepressant	No	No	Mixed diet	No	1-2 per week
+57	1	PHP_C_4	PHP_C_4	PHP_GC_C_04	PHP_C_L4	PHP_C_aq4	PHP_EDC_C_04	Negative control	0.0	0.0	0.0	2xd	4	50.0	m	No	No	No	No	Mixed diet	No	5-6 per week
+58	1	PHP_C_40	PHP_C_40	PHP_GC_C_40	PHP_C_L40	PHP_C_aq40	PHP_EDC_C_40	Positive control	0.0	0.0	1.0	1xd	2	51.0	w	Yes	SERM	No	No	Mixed diet	No	1-2 per week
+59	1	PHP_C_41	PHP_C_41	PHP_GC_C_41	PHP_C_L41	PHP_C_aq41	PHP_EDC_C_41	Negative control	0.0	0.0	0.0	1xd	4	55.0	w	Yes	Levothyroxine	No	No	Mixed diet	No	3-4 per week
+60	1	PHP_C_42	PHP_C_42	PHP_GC_C_42	PHP_C_L42	PHP_C_aq42	PHP_EDC_C_42	Negative control	0.0	0.0	0.0	1xd	2	63.0	w	No	No	No	No	Mixed diet	No	No
+61	1	PHP_C_43	PHP_C_43	PHP_GC_C_43	PHP_C_L43	PHP_C_aq43	PHP_EDC_C_43	Positive control	0.0	0.0	1.0	1xd	2+3	58.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+62	1	PHP_C_44	PHP_C_44	PHP_GC_C_44	PHP_C_L44	PHP_C_aq44	PHP_EDC_C_44	Negative control	0.0	0.0	0.0	3xd	5+6	64.0	m	No	No	No	No	Vegetarian	No	1-2 per week
+63	1	PHP_C_45	PHP_C_45	PHP_GC_C_45	PHP_C_L45	PHP_C_aq45	PHP_EDC_C_45	Negative control	0.0	0.0	0.0	3xd	4	41.0	m	Yes	No	No	No	Mixed diet	No	1-2 per week
+64	1	PHP_C_46	PHP_C_46	PHP_GC_C_46	PHP_C_L46	PHP_C_aq46	PHP_EDC_C_46	Positive control	0.0	0.0	1.0	1xd	2	29.0	m	No	No	No	No	Mixed diet	No	No
+65	1	PHP_C_47	PHP_C_47	PHP_GC_C_47	PHP_C_L47	PHP_C_aq47	PHP_EDC_C_47	Positive control	0.0	0.0	1.0	1xd	4	56.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+66	1	PHP_C_48	PHP_C_48	PHP_GC_C_48	PHP_C_L48	PHP_C_aq48	PHP_EDC_C_48	Positive control	0.0	0.0	1.0	1xd	4	38.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+67	1	PHP_C_49	PHP_C_49	PHP_GC_C_49	PHP_C_L49	PHP_C_aq49	PHP_EDC_C_49	Negative control	0.0	0.0	0.0	1xd	4	53.0	m	No	No	No	No	Mixed diet	Yes	1-2 per week
+68	1	PHP_C_5	PHP_C_5	PHP_GC_C_05	PHP_C_L5	PHP_C_aq5	PHP_EDC_C_05	Negative control	0.0	0.0	0.0	1xd	4	35.0	m	No	No	No	No	Vegetarian	No	1-2 per week
+69	1	PHP_C_50	PHP_C_50	PHP_GC_C_50	PHP_C_L50	PHP_C_aq50	PHP_EDC_C_50	Negative control	0.0	0.0	0.0	1x per 2d	4+5	31.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+70	1	PHP_C_51	PHP_C_51	PHP_GC_C_51	PHP_C_L51	PHP_C_aq51	PHP_EDC_C_51	Negative control	0.0	0.0	0.0	2xd	4	28.0	w	No	No	No	No	Mixed diet	No	No
+71	1	PHP_C_52	PHP_C_52	PHP_GC_C_52	PHP_C_L52	PHP_C_aq52	PHP_EDC_C_52	Negative control	0.0	0.0	0.0	1xd	3	26.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+72	1	PHP_C_53	PHP_C_53	PHP_GC_C_53	PHP_C_L53	PHP_C_aq53	PHP_EDC_C_53	Negative control	0.0	0.0	0.0	1xd	6	24.0	w	Yes	Levothyroxine	No 	Yes	Mixed diet	No	< 1 per week
+73	1	PHP_C_55	PHP_C_55	PHP_GC_C_55	PHP_C_L55	PHP_C_aq55	PHP_EDC_C_55	Positive control	0.0	0.0	1.0	2xd	3	61.0	w	Yes	PPI, Probiotics	No	Yes	Mixed diet	No	No
+74	1	PHP_C_56	PHP_C_56	PHP_GC_C_56	PHP_C_L56	PHP_C_aq56	PHP_EDC_C_56	Positive control	0.0	0.0	1.0	1xd	4	26.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+75	1	PHP_C_57	PHP_C_57	PHP_GC_C_57	PHP_C_L57	PHP_C_aq57	PHP_EDC_C_57	Negative control	0.0	0.0	0.0	2xd	4	55.0	w	No	PPI	No	No	Mixed diet	No	< 1 per week
+76	1	PHP_C_58	PHP_C_58	PHP_GC_C_58	PHP_C_L58	PHP_C_aq58	PHP_EDC_C_58	Positive control	0.0	0.0	1.0	1x per 2d	5+6	23.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+77	1	PHP_C_59	PHP_C_59	PHP_GC_C_59	PHP_C_L59	PHP_C_aq59	PHP_EDC_C_59	Positive control	0.0	0.0	1.0	1xd	3	43.0	m	No	St Johns wort	No	No	Vegetarian	No	< 1 per week
+78	1	PHP_C_6	PHP_C_6	PHP_GC_C_06	PHP_C_L6	PHP_C_aq6	PHP_EDC_C_06	Negative control	0.0	0.0	0.0	1xd	4	34.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+79	1	PHP_C_60	PHP_C_60	PHP_GC_C_60	PHP_C_L60	PHP_C_aq60	PHP_EDC_C_60	Negative control	0.0	0.0	0.0	2xd	5	25.0	w	Yes	Local corticosteroids	No	No	Vegetarian	No	< 1 per week
+80	1	PHP_C_61	PHP_C_61	PHP_GC_C_61	PHP_C_L61	PHP_C_aq61	PHP_EDC_C_61	Negative control	0.0	0.0	0.0	1xd	6	25.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+81	1	PHP_C_62	PHP_C_62	PHP_GC_C_62	PHP_C_L62	PHP_C_aq62	PHP_EDC_C_62	Negative control	0.0	0.0	0.0	1xd	4	24.0	m	No	No	No	No	Mixed diet	No	< 1 per week
+82	1	PHP_C_63	PHP_C_63	PHP_GC_C_63	PHP_C_L63	PHP_C_aq63	PHP_EDC_C_63	Negative control	0.0	0.0	0.0	1xd	2	23.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+83	2	PHP_C_64	PHP_C_64					Negative control	0.0	0.0	0.0	1x per 2d	4	22.0	w	No	No	No	No	Mixed diet	No	No
+84	2	PHP_C_65	PHP_C_65					Negative control	0.0	0.0	0.0	1xd	3	30.0	w	No	No	No	No	Mixed diet	No	5-6 per week
+85	2	PHP_C_66	PHP_C_66					Negative control	0.0	0.0	0.0	2xd	4	31.0	m	Yes	No	No	No	Mixed diet	No	5-6 per week
+86	2	PHP_C_67	PHP_C_67					Negative control	0.0	0.0	0.0	1xd	4	30.0	m	No	No	No	No	Mixed diet	No	No
+87	2	PHP_C_68	PHP_C_68					Negative control	0.0	0.0	0.0	1xd	3	26.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+88	2	PHP_C_69	PHP_C_69					Negative control	0.0	0.0	0.0	1xd	4	22.0	w	No	No	No	No	Mixed diet	No	3-4 per week
+89	1	PHP_C_7	PHP_C_7	PHP_GC_C_07	PHP_C_L7	PHP_C_aq7	PHP_EDC_C_07	Positive control	0.0	0.0	1.0	1x per 3d	2	27.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+90	2	PHP_C_70	PHP_C_70					Positive control	0.0	0.0	1.0	1xd	4	35.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+91	2	PHP_C_71	PHP_C_71					Negative control	0.0	0.0	0.0	1xd	4	24.0	w	Yes	No	Yes	Yes	Vegetarian	No	< 1 per week
+92	2	PHP_C_72	PHP_C_72					Positive control	0.0	0.0	1.0	2xd	4	56.0	m	No	No	No	No	Mixed diet	No	< 1 per week
+93	2	PHP_C_73	PHP_C_73					Negative control	0.0	0.0	0.0	1xd	4	25.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+94	2	PHP_C_74	PHP_C_74					Negative control	0.0	0.0	0.0	1xd	7	27.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+95	2	PHP_C_75	PHP_C_75					Negative control	0.0	0.0	0.0	2xd	4	24.0	w	No	No	No	No	Vegetarian	No	1-2 per week
+96	2	PHP_C_76	PHP_C_76					Negative control	0.0	0.0	0.0	1xd	4	25.0	m	No	No	No	No	Mixed diet	No	3-4 per week
+97	2	PHP_C_77	PHP_C_77					Negative control	0.0	0.0	0.0	2xd	3	25.0	w	No	Oral Contraceptive	Yes	Yes	Vegan	No	< 1 per week
+98	2	PHP_C_78	PHP_C_78					Positive control	0.0	0.0	1.0	1xd	3	25.0	w	No	Oral Contraceptive	No	No	Vegan	No	No
+99	2	PHP_C_79	PHP_C_79					Negative control	0.0	0.0	0.0	1xd	6	25.0	w	No	Oral Contraceptive	No	No	Mixed diet	No	1-2 per week
+100	1	PHP_C_8	PHP_C_8	PHP_GC_C_08	PHP_C_L8	PHP_C_aq8	PHP_EDC_C_08	Negative control	0.0	0.0	0.0	1xd	4	28.0	m	No	No	No	No	Mixed diet	No	No
+101	2	PHP_C_80	PHP_C_80					Negative control	0.0	0.0	0.0	1x  per 3d	1	22.0	w	No	No	No	No	Mixed diet	No	3-4 per week
+102	2	PHP_C_81	PHP_C_81					Negative control	0.0	0.0	0.0	1x  per 3d	1, 3, 4	58.0	w	No	No	Yes	No	Mixed diet	No	1-2 per week
+103	2	PHP_C_83	PHP_C_83					Negative control	0.0	0.0	0.0	3xd	4	25.0	m	No	No	No	No	Mixed diet	No	1-2 per week
+104	2	PHP_C_84	PHP_C_84					Negative control	0.0	0.0	0.0	2xd	6	24.0	w	No	No	No	No	Vegetarian	No	1-2 per week
+105	2	PHP_C_85	PHP_C_85					Negative control	0.0	0.0	0.0	2xd	4	24.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+106	2	PHP_C_86	PHP_C_86					Negative control	0.0	0.0	0.0	1x per 2d	2	59.0	w	Yes	Thyroxin	No	Yes	Vegetarian	No	No
+107	2	PHP_C_87	PHP_C_87					Negative control	0.0	0.0	0.0	1xd	4	59.0	w	Yes	Hormonal modulators, Antihypertensives	Yes	Yes	Mixed diet	Yes 	< 1 per week
+108	2	PHP_C_88	PHP_C_88					Negative control	0.0	0.0	0.0	1xd	3	26.0	w	No	Contraceptive	No	No	Mixed diet	No	No
+109	2	PHP_C_89	PHP_C_89					Negative control	0.0	0.0	0.0	3xd	6	25.0	w	No	No	No	No	Vegetarian	No	< 1 per week
+110	1	PHP_C_9	PHP_C_9	PHP_GC_C_09	PHP_C_L9	PHP_C_aq9	PHP_EDC_C_09	Positive control	0.0	0.0	1.0	1xd	6	58.0	w	No	No	No	Yes	Mixed diet	Yes	1-2 per week
+111	2	PHP_C_90	PHP_C_90					Positive control	0.0	0.0	1.0	1xd	4	59.0	w	No	Antihypertensive, Antacid (4 Weeks ago)	Yes	No	Mixed diet	No	1-2 per week
+112	2	PHP_C_91	PHP_C_91					Negative control	0.0	0.0	0.0	1x per 2d	6	29.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+113	2	PHP_C_92	PHP_C_92					Negative control	0.0	0.0	0.0	1xd	4	55.0	w	No	Antihypothyrodism, Probiotic	Yes	No	Mixed diet	No	< 1 per week
+114	2	PHP_C_93	PHP_C_93					Negative control	0.0	0.0	0.0	2xd	3	23.0	w	No	No	No	No	Mixed diet	No	1-2 per week
+115	2	PHP_C_94	PHP_C_94					Negative control	0.0	0.0	0.0	1x per 3d	3	24.0	w	No	No	No	No	Vegetarian	Yes	< 1 per week
+116	2	PHP_C_95	PHP_C_95					Negative control	0.0	0.0	0.0	1xd	4	63.0	w	No	Antihypertensives	No	No	Mixed diet	Yes	7 per week
+117	2	PHP_C_96	PHP_C_96					Negative control	0.0	0.0	0.0	1xd	5	60.0	w	No	No	No	No	Mixed diet	No	< 1 per week
+118	2	PHP_C_98	PHP_C_98					Negative control	0.0	0.0	0.0	1xd	4	24.0	w	Yes	Contraceptive, Antiallergic, Laktostop	No	No	Vegetarian	No	< 1 per week
+119	2	PHP_C_99	PHP_C_99					Negative control	0.0	0.0	0.0	2xd	4	28.0	w	Yes	Insulin	No	No	Vegetarian	No	1-2 per week
+120	2	PHP_P_11	PHP_P_11					Patient	0.0	0.0		2xd 	4	39.0	m							
+121	2	PHP_P_12	PHP_P_12					Patient	0.0	0.0		3xd	5	68.0	m							
+122	2	PHP_P_14	PHP_P_14					Patient	0.0	0.0		1xd	4	65.0	w							
+123	2	PHP_P_15	PHP_P_15					Patient	0.0	0.0		> 3xd	4,5,6	24.0	m							
+124	2	PHP_P_16	PHP_P_16					Patient	0.0	0.0		3xd	6	63.0	w							
+125	2	PHP_P_17	PHP_P_17					Patient	0.0	0.0		2xd	4,5	75.0	m							
+127	2	PHP_P_19	PHP_P_19					Patient	0.0	0.0		2xd	4, 6, 7	65.0	m							
+128	1	PHP_P_2	PHP_P_2					Patient	0.0	0.0		1,5xd	2, 3, 4	64.0	m							
+129	2	PHP_P_20	PHP_P_20					Patient	0.0	0.0		1x per 3d	4	70.0	m					Vegetarian	No	1-2 per week
+130	2	PHP_P_24	PHP_P_24					Patient	0.0	0.0		1xd	4	68.0	w					Mixed diet	Yes	1-2 per week
+131	1	PHP_P_3	PHP_P_3					Patient	0.0	0.0		1xd	4	58.0	m							
+132	1	PHP_P_6	PHP_P_6					Patient	0.0	0.0		1xd	4	49.0	m							
+134	1	PHP_P_9	PHP_P_9					Patient	0.0	0.0		1xd	4	65.0	m							
