@@ -52,7 +52,6 @@ def split_classes(X, y):
 
 
 def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
-
     results = {}
     le = LabelEncoder()
     y = le.fit_transform(y)
@@ -79,19 +78,40 @@ def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
     ovr_auc = roc_auc_score(y_bin, y_score, multi_class="ovr", average=None)
     for idx, auc_val in enumerate(ovr_auc):
         print(f"AUC for class '{class_names[idx]}': {auc_val:.4f}")
-        results[f"{class_names[idx]} vs Rest"] = auc_val
+        results[f"{class_names[idx]} vs Rest - AUC"] = auc_val
 
-    # Calculate macro and micro AUC for OvR
+    # Calculate precision, recall, and F1 for each class in OvR
+    y_pred_ovr = np.argmax(y_score, axis=1)
+    precision, recall, f1, _ = precision_recall_fscore_support(y, y_pred_ovr, average=None)
+    for idx in range(len(class_names)):
+        results[f"{class_names[idx]} vs Rest - Precision"] = precision[idx]
+        results[f"{class_names[idx]} vs Rest - Recall"] = recall[idx]
+        results[f"{class_names[idx]} vs Rest - F1"] = f1[idx]
+    
+    # Calculate macro AUC, precision, recall, and F1 for OvR
     macro_ovr_auc = roc_auc_score(y_bin, y_score, multi_class="ovr", average="macro")
-    # micro_ovr_auc = roc_auc_score(y_bin, y_score, multi_class="ovr", average="micro")
+    macro_ovr_precision = np.mean(precision)
+    macro_ovr_recall = np.mean(recall)
+    macro_ovr_f1 = np.mean(f1)
+
     results["OvR Macro AUC"] = macro_ovr_auc
+    results["OvR Macro Precision"] = macro_ovr_precision
+    results["OvR Macro Recall"] = macro_ovr_recall
+    results["OvR Macro F1"] = macro_ovr_f1
+
     print(f"Macro AUC (OvR): {macro_ovr_auc:.4f}")
+    print(f"Macro Precision (OvR): {macro_ovr_precision:.4f}")
+    print(f"Macro Recall (OvR): {macro_ovr_recall:.4f}")
+    print(f"Macro F1 (OvR): {macro_ovr_f1:.4f}")
 
     ####################
     # One-vs-One Classification
     ####################
     print("Performing One vs One classification")
     ovo_auc = {}
+    ovo_precision = {}
+    ovo_recall = {}
+    ovo_f1 = {}
     class_pairs = split_classes(X, y)
 
     for (c1, c2), (X_subset, y_subset) in class_pairs.items():
@@ -108,19 +128,37 @@ def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
         fpr, tpr, _ = roc_curve(y_binary, y_score[:, 1])
         auc_val = auc(fpr, tpr)
 
-        # Decode labels
-        results[
-            f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]}"
-        ] = auc_val
-        ovo_auc[(c1, c2)] = auc_val
+        # Compute precision, recall, and F1 for each class pair (OvO)
+        y_pred_ovo = np.argmax(y_score, axis=1)
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            y_binary, y_pred_ovo, average='binary'
+        )
 
-    # Calculate macro and micro AUC for OvO
-    macro_ovo_auc = np.mean(
-        list(ovo_auc.values())
-    )  # Macro: Average AUC over all class pairs
-    y_scores = cross_val_predict(base_clf, X, y, cv=outer_cv, method="predict_proba")
+        results[f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - AUC"] = auc_val
+        results[f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - Precision"] = precision
+        results[f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - Recall"] = recall
+        results[f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - F1"] = f1
+
+        ovo_auc[(c1, c2)] = auc_val
+        ovo_precision[(c1, c2)] = precision
+        ovo_recall[(c1, c2)] = recall
+        ovo_f1[(c1, c2)] = f1
+
+    # Calculate macro AUC, precision, recall, and F1 for OvO
+    macro_ovo_auc = np.mean(list(ovo_auc.values()))  # Macro: Average AUC over all class pairs
+    macro_ovo_precision = np.mean(list(ovo_precision.values()))
+    macro_ovo_recall = np.mean(list(ovo_recall.values()))
+    macro_ovo_f1 = np.mean(list(ovo_f1.values()))
+
     results["OvO Macro AUC"] = macro_ovo_auc
+    results["OvO Macro Precision"] = macro_ovo_precision
+    results["OvO Macro Recall"] = macro_ovo_recall
+    results["OvO Macro F1"] = macro_ovo_f1
+
     print(f"Macro AUC (OvO): {macro_ovo_auc:.4f}")
+    print(f"Macro Precision (OvO): {macro_ovo_precision:.4f}")
+    print(f"Macro Recall (OvO): {macro_ovo_recall:.4f}")
+    print(f"Macro F1 (OvO): {macro_ovo_f1:.4f}")
 
     return results
 
