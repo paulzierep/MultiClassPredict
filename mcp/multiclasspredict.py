@@ -1,12 +1,16 @@
 import argparse
 import copy
 import itertools
+import warnings
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from imblearn.over_sampling import SMOTE, RandomOverSampler
+from imblearn.pipeline import Pipeline
+from imblearn.under_sampling import NearMiss, RandomUnderSampler
 from lightgbm import LGBMClassifier
 from matplotlib.colors import ListedColormap
 from sklearn import datasets
@@ -36,13 +40,15 @@ from sklearn.model_selection import (
     train_test_split,
 )
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelBinarizer, LabelEncoder, label_binarize
 from sklearn.svm import SVC
 
 # from tabpfn import TabPFNClassifier
 # from tabpfn_extensions.post_hoc_ensembles.sklearn_interface import AutoTabPFNClassifier
 from xgboost import XGBClassifier
+
+# Suppress FutureWarnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 def split_classes(X, y):
@@ -199,10 +205,24 @@ def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
     return results
 
 
-def repeat_clf(n_seeds, ks, X, y, model="rf"):
+def repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling"):
 
     print(ks)
     print(n_seeds)
+
+    # Define sampling strategies
+    sampling_strategies = {
+        "No Sampling": None,
+        "Random OverSampling": RandomOverSampler(random_state=42),
+        "SMOTE": SMOTE(random_state=42),
+        "Random UnderSampling": RandomUnderSampler(random_state=42),
+        "NearMiss (v1)": NearMiss(version=1),
+        "NearMiss (v2)": NearMiss(version=2),
+        "NearMiss (v3)": NearMiss(version=3),
+    }
+
+    # If the selected strategy is not in the dictionary, use "No Sampling"
+    sampler = sampling_strategies.get(sampling_strategy, None)
 
     seed_results = {}
 
@@ -244,28 +264,30 @@ def repeat_clf(n_seeds, ks, X, y, model="rf"):
                     "estimator__classification__gamma": [0],
                     "estimator__classification__max_depth": [6],
                 }
-
             elif model == "etc":
                 ml_model = ExtraTreesClassifier(random_state=seed)
                 ml_model_grid = {
                     "estimator__classification__n_estimators": [100],
-                    # "estimator__classification__gamma": [0],
-                    # "estimator__classification__max_depth": [6],
                 }
-
             elif model == "lgbm":
                 ml_model = LGBMClassifier(random_state=seed, verbose=-1)
                 ml_model_grid = {
                     "estimator__classification__n_estimators": [100],
                 }
 
-            # Create a pipeline with feature selection and classification
-            pipeline = Pipeline(
-                steps=[("feature_selection", selector), ("classification", ml_model)]
-            )
+            # If there is a sampler, include it in the pipeline
+            steps = []
+            if sampler:
+                steps.append(("sampling", sampler))
+            steps.append(("feature_selection", selector))
+            steps.append(("classification", ml_model))
+
+            # Create a pipeline with feature selection, sampling, and classification
+            pipeline = Pipeline(steps=steps)
 
             ###########################
 
+            # Run the classification with the sampling strategy
             results = ovo_and_ova_multiclass_auc(
                 X, y, pipeline, ml_model_grid, random_state=seed
             )
@@ -300,7 +322,7 @@ def store_results(seed_results, output):
     print(df)
 
 
-def run_classification(X, y, ks, n_seeds, model, output):
+def run_classification(X, y, ks, n_seeds, model, sampling_strategy, output):
 
     # Ensure ks does not exceed the number of columns in X
     max_features = len(X.columns)
@@ -308,7 +330,7 @@ def run_classification(X, y, ks, n_seeds, model, output):
     if max_features not in ks:
         ks.append(max_features)
 
-    seed_results = repeat_clf(n_seeds, ks, X, y, model)
+    seed_results = repeat_clf(n_seeds, ks, X, y, model, sampling_strategy)
     store_results(seed_results, output)
 
 
