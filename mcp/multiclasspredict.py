@@ -322,7 +322,7 @@ def store_results(seed_results, output):
     print(df)
 
 
-def run_classification(X, y, ks, n_seeds, model, sampling_strategy, output):
+def run_classification(X, y, ks, n_seeds,output,model="rf", sampling_strategy="No Sampling"):
 
     # Ensure ks does not exceed the number of columns in X
     max_features = len(X.columns)
@@ -330,7 +330,7 @@ def run_classification(X, y, ks, n_seeds, model, sampling_strategy, output):
     if max_features not in ks:
         ks.append(max_features)
 
-    seed_results = repeat_clf(n_seeds, ks, X, y, model, sampling_strategy)
+    seed_results = repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling")
     store_results(seed_results, output)
 
 
@@ -354,4 +354,4 @@ if __name__ == "__main__":
     # flattening y into 1D array
     y = y["target"].values.ravel()
 
-    run_classification(X, y, args.ks, args.n_seeds, "test_clf.csv")
+    run_classification(X, y, args.ks, args.n_seeds,"test_clf.csv",model="rf", sampling_strategy="No Sampling")
