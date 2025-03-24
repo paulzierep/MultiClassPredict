@@ -205,7 +205,7 @@ def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
     return results
 
 
-def repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling"):
+def repeat_clf(n_seeds, ks, X, y, model, sampling_strategy):
 
     print(ks)
     print(n_seeds)
@@ -294,7 +294,13 @@ def repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling"):
 
             print(results)
 
-            ks_results[k] = results
+            ks_results[k] = {
+                "results": results,
+                "Dataset": X,
+                "Model": model,
+                "Sampling_Strategy": sampling_strategy,
+            }
+
 
         seed_results[seed] = copy.copy(ks_results)
 
@@ -304,7 +310,7 @@ def repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling"):
 def store_results(seed_results, output):
 
     # Flatten the nested dictionary into a DataFrame
-    df = pd.DataFrame(
+    '''df = pd.DataFrame(
         {
             (outer_key, inner_key): values
             for outer_key, inner_dict in seed_results.items()
@@ -312,17 +318,41 @@ def store_results(seed_results, output):
         }
     ).T
 
-    # Set multi-level index names for clarity
-    df.index.names = ["Seed", "Features (k)"]
+    # '''
+    
+    final_results = []
+    
+    for seed, ks_results in seed_results.items():
+        for k, result_info in ks_results.items():
+            result = result_info["results"]
+            model = result_info["Model"]
+            sampling_strategy = result_info["Sampling_Strategy"]
+            dataset=result_info["Dataset"]
+            
+            # Collect all relevant information in a list
+            final_results.append({
+                "Seed": seed,
+                "Features (k)": k,
+                "Dataset":dataset,
+                "Model": model,
+                "Sampling Strategy": sampling_strategy,
+                "Result": result,  # Assuming 'result' contains the results of your classification
+            })
+    df = pd.DataFrame(final_results)
 
+    #Set multi-level index names for clarity
+    df.set_index(["Seed", "Features (k)", "Dataset", "Model", "Sampling Strategy"], inplace=True)
+
+    df.index.names = ["Seed", "Features (k)","Dataset","Model","Sampling Strategy"]
     # Display the DataFrame
     df = df.reset_index()
 
-    df.to_csv(output)
+    df.to_csv(output, mode='a', header=not os.path.exists(output))
+
     print(df)
 
 
-def run_classification(X, y, ks, n_seeds,output,model="rf", sampling_strategy="No Sampling"):
+def run_classification(X, y, ks, n_seeds,output,model, sampling_strategy):
 
     # Ensure ks does not exceed the number of columns in X
     max_features = len(X.columns)
@@ -330,7 +360,7 @@ def run_classification(X, y, ks, n_seeds,output,model="rf", sampling_strategy="N
     if max_features not in ks:
         ks.append(max_features)
 
-    seed_results = repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling")
+    seed_results = repeat_clf(n_seeds, ks, X, y, model, sampling_strategy)
     store_results(seed_results, output)
 
 
@@ -344,7 +374,9 @@ if __name__ == "__main__":
         "--ks", type=int, nargs="+", required=True, help="list of values of k"
     )
     parser.add_argument("--n_seeds", type=int, default=2, help="number of seeds")
-
+    parser.add_argument("--model", type=str, required=True, help="choose model :['rf', 'XGB', 'ETC', 'lgbm' ]")
+    parser.add_argument("--sampling_strategy", type=str, required=True, help="choose sampling strategy: ['No Sampling','Random OverSampling','SMOTE','Random UnderSampling','NearMiss (v1)','NearMiss (v2)','NearMiss (v3)']")
+    
     args = parser.parse_args()
 
     # reading str file paths
@@ -353,5 +385,6 @@ if __name__ == "__main__":
 
     # flattening y into 1D array
     y = y["target"].values.ravel()
+    result_path="results/appended_results.csv"
 
-    run_classification(X, y, args.ks, args.n_seeds,"test_clf.csv",model="rf", sampling_strategy="No Sampling")
+    run_classification(X, y, args.ks, args.n_seeds,result_path,args.model, args.sampling_strategy)
