@@ -350,7 +350,7 @@ def store_results(seed_results, output):
     # Display the DataFrame
     df = df.reset_index()
 
-    df.to_csv(output, mode='a', header=not os.path.exists(output))
+    df.to_csv(output, mode='a', header=not os.path.exists(output), index=False)
 
     print(df)
 
@@ -574,6 +574,85 @@ def plot_all_modes(output, label, model, sampling_strategy):
     fig_ovo.suptitle("OvO Metrics", fontsize=14, y=1.02)
     plt.show()
 
+def plot_box(file_path,x_axis):
+    
+    df = pd.read_csv(file_path)
+    
+    # Convert "Features (k)" to numeric
+    df["Features (k)"] = pd.to_numeric(df["Features (k)"], errors="coerce")
+    
+    # Separate data based on number of features
+    df_10_features = df[df["Features (k)"] == 10]
+    df_all_features = df[df["Features (k)"] != 10]  # Assuming "all features" is any value other than 10
+    
+    # Set up plotting style
+    sns.set_theme(style="whitegrid")
+    
+    # Create subplots
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    
+    # Plot OvR Macro AUC for 10 features
+    sns.boxplot(data=df_10_features, x=x_axis, y="OvR Macro AUC", hue="Label", ax=axes[0, 0])
+    axes[0, 0].set_title("OvR Macro AUC (10 Features)")
+    
+    # Plot OvO Macro AUC for 10 features
+    sns.boxplot(data=df_10_features, x=x_axis, y="OvO Macro AUC", hue="Label", ax=axes[0, 1])
+    axes[0, 1].set_title("OvO Macro AUC (10 Features)")
+    
+    # Plot OvR Macro AUC for all features
+    sns.boxplot(data=df_all_features, x=x_axis, y="OvR Macro AUC", hue="Label", ax=axes[1, 0])
+    axes[1, 0].set_title("OvR Macro AUC (All Features)")
+    
+    # Plot OvO Macro AUC for all features
+    sns.boxplot(data=df_all_features, x=x_axis, y="OvO Macro AUC", hue="Label", ax=axes[1, 1])
+    axes[1, 1].set_title("OvO Macro AUC (All Features)")
+    
+    # Adjust layout and save figure
+    plt.tight_layout()
+    plt.savefig("AUC_Comparison_10_vs_All_Features.png")
+    plt.show()
+
+def classwise_auc_plot(file_path,x_axis):
+    #read df
+    df = pd.read_csv(file_path)
+    
+    # Convert "Features (k)" to numeric
+    df["Features (k)"] = pd.to_numeric(df["Features (k)"], errors="coerce")
+    
+    # Separate data based on number of features
+    df_10_features = df[df["Features (k)"] == 10]
+    df_all_features = df[df["Features (k)"] != 10]  # Assuming "all features" means not 10
+    
+    # Define class-wise AUC columns
+    class_auc_columns = [
+        "Negative control vs Rest - AUC",
+        "Patient vs Rest - AUC",
+        "Positive control vs Rest - AUC",
+        "Negative control vs Patient - AUC",
+        "Negative control vs Positive control - AUC",
+        "Patient vs Positive control - AUC"
+    ]
+    
+    # Set up plotting style
+    sns.set_theme(style="whitegrid")
+    
+    # --- PLOT CLASS-WISE AUCs ---
+    for col in class_auc_columns:
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+        # Plot for 10 features
+        sns.boxplot(data=df_10_features, x=x_axis, y=col, hue="Label", ax=axes[0])
+        axes[0].set_title(f"{col} (10 Features)")
+    
+        # Plot for all features
+        sns.boxplot(data=df_all_features, x=x_axis, y=col, hue="Label", ax=axes[1])
+        axes[1].set_title(f"{col} (All Features)")
+    
+        # Adjust layout and save the figure
+        plt.tight_layout()
+        filename = col.replace(" ", "_").replace("-", "").replace("/", "_") + "_Comparison.png"
+        plt.savefig(filename)
+        plt.show()
 
 
 
