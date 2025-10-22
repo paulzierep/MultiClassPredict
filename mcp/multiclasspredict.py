@@ -2,6 +2,7 @@ import argparse
 import copy
 import itertools
 import warnings
+import os
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
@@ -49,6 +50,8 @@ from xgboost import XGBClassifier
 
 # Suppress FutureWarnings
 warnings.filterwarnings("ignore", category=FutureWarning)
+
+
 
 
 def split_classes(X, y):
@@ -205,7 +208,7 @@ def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
     return results
 
 
-def repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling"):
+def repeat_clf(n_seeds, ks, X, y, label, model, sampling_strategy):
 
     print(ks)
     print(n_seeds)
@@ -294,7 +297,13 @@ def repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling"):
 
             print(results)
 
-            ks_results[k] = results
+            ks_results[k] = {
+                "results": results,
+                "Label": label,
+                "Model": model,
+                "Sampling_Strategy": sampling_strategy,
+            }
+
 
         seed_results[seed] = copy.copy(ks_results)
 
@@ -304,7 +313,7 @@ def repeat_clf(n_seeds, ks, X, y, model="rf", sampling_strategy="No Sampling"):
 def store_results(seed_results, output):
 
     # Flatten the nested dictionary into a DataFrame
-    df = pd.DataFrame(
+    '''df = pd.DataFrame(
         {
             (outer_key, inner_key): values
             for outer_key, inner_dict in seed_results.items()
@@ -312,17 +321,41 @@ def store_results(seed_results, output):
         }
     ).T
 
-    # Set multi-level index names for clarity
-    df.index.names = ["Seed", "Features (k)"]
+    # '''
+    
+    final_results = []
+    
+    for seed, ks_results in seed_results.items():
+        for k, result_info in ks_results.items():
+            result = result_info["results"]
+            model = result_info["Model"]
+            sampling_strategy = result_info["Sampling_Strategy"]
+            label=result_info["Label"]
+            
+            # Collect all relevant information in a list
+            final_results.append({
+                "Seed": seed,
+                "Features (k)": k,
+                "Label":label,
+                "Model": model,
+                "Sampling_Strategy": sampling_strategy,
+                **result, 
+            })
+    df = pd.DataFrame(final_results)
 
+    #Set multi-level index names for clarity
+    df.set_index(["Seed", "Features (k)", "Label", "Model", "Sampling_Strategy"], inplace=True)
+
+    df.index.names = ["Seed", "Features (k)","Label","Model","Sampling_Strategy"]
     # Display the DataFrame
     df = df.reset_index()
 
-    df.to_csv(output)
+    df.to_csv(output, mode='a', header=not os.path.exists(output), index=False)
+
     print(df)
 
 
-def run_classification(X, y, ks, n_seeds, model, sampling_strategy, output):
+def run_classification(X, y, ks, n_seeds,output, label,model, sampling_strategy):
 
     # Ensure ks does not exceed the number of columns in X
     max_features = len(X.columns)
@@ -330,8 +363,297 @@ def run_classification(X, y, ks, n_seeds, model, sampling_strategy, output):
     if max_features not in ks:
         ks.append(max_features)
 
-    seed_results = repeat_clf(n_seeds, ks, X, y, model, sampling_strategy)
+    seed_results = repeat_clf(n_seeds, ks, X, y, label,model, sampling_strategy)
     store_results(seed_results, output)
+
+
+
+def plot_bar(output,ks,label,model,sampling_strategy):
+    # Assuming `df` is your DataFrame
+    df = pd.read_csv(output)
+   
+    # Resetting the index to simplify handling hierarchical index
+    df = df.reset_index()
+    
+    # Filter the DataFrame to select only rows with required 'label' 
+    df = df[(df['Label'] == label) & 
+        (df['Model'] == model) & 
+        (df['Sampling_Strategy'] == sampling_strategy)]
+
+
+    #dropping columns as values irrelevant for metric
+    df = df.drop(columns=['index','Unnamed: 0','Label','Model','Sampling_Strategy'], errors='ignore')
+    #print(df)
+    
+    # Melting the dataframe to long format for seaborn compatibility
+    df_melted = df.melt(
+        id_vars=["Seed", "Features (k)"], 
+        var_name="Metric", 
+        value_name="Value"
+    )
+    df_melted = df_melted[df_melted["Metric"].str.contains("AUC", na=False)]
+
+   
+
+    print("\ndf_melted:\n",df_melted)
+    
+    # Create a new figure for each plot to prevent them from overlaying
+    plt.figure(figsize=(16, 6))
+    # Initialize the subplots
+    fig, axes = plt.subplots(1, len(ks), figsize=(16, 6), sharey=True)
+    
+    # If only one subplot, make sure axes is iterable (a list of length 1)
+    if len(ks) == 1:
+        axes = [axes]
+    
+    # Iterate over the subsets ks
+    for i, features in enumerate(ks):
+        
+        df_melted["Features (k)"] = df_melted["Features (k)"].astype(str)
+        # Remove any quotes and strip spaces
+        df_melted["Features (k)"] = df_melted["Features (k)"].str.replace(r"['\"]", "", regex=True)
+
+        # Convert to numeric
+        df_melted["Features (k)"] = pd.to_numeric(df_melted["Features (k)"], errors='coerce')
+       
+        subset = df_melted[df_melted["Features (k)"] == features]
+        
+        # Check if subset is empty
+        if subset.empty:  
+            print(f"Warning: No data for Features (k) = {features}")
+            # Skip plotting for this subset
+            continue  
+    
+        # Plot barplot for averages with error bars
+        
+        sns.barplot(
+            data=subset, 
+            x="Metric", 
+            y="Value", 
+            ax=axes[i], 
+            ci="sd", 
+            color="skyblue",
+            estimator="mean",
+           
+        )
+    
+        # Overlay stripplot for individual seed values
+        sns.stripplot(
+            data=subset, 
+            x="Metric", 
+            y="Value", 
+            ax=axes[i], 
+            hue="Seed",
+            dodge=True, 
+            jitter=True, 
+            alpha=0.7,
+            
+        )
+    
+        # Add a horizontal dashed red line for AUC = 0.5
+        axes[i].axhline(0.5, color="red", linestyle="--", linewidth=1.5)
+    
+        # Set subplot title
+        axes[i].set_title(f"Features (k): {features}, Model : {model}, sampling_strategy: {sampling_strategy}")
+    
+        # Rotate x-axis labels for clarity
+        axes[i].tick_params(axis='x', rotation=90)
+       
+    
+    
+        
+    # Set overall title and adjust layout
+    fig.suptitle("Bar Plot with Individual Seed Values and AUC=0.5 Threshold")
+    fig.tight_layout()
+    plt.show()
+
+
+
+
+
+def plot_all_modes(output, label, model, sampling_strategy):
+    df = pd.read_csv(output, index_col = 0)
+
+    # Filter the DataFrame to select only rows with required 'label' 
+    df = df[(df['Label'] == label) & 
+        (df['Model'] == model) & 
+        (df['Sampling_Strategy'] == sampling_strategy)]
+
+    
+    #converting features to str to remove unnecessary data
+    df["Features (k)"] = df["Features (k)"].astype(str)
+    
+    # Remove any quotes and strip spaces
+    df["Features (k)"] = df["Features (k)"].str.replace(r"['\"]", "", regex=True)
+
+    #removing columns as irrelevant to metric
+    df = df.drop(columns=['index','Unnamed: 0','Label','Model','Sampling_Strategy'], errors='ignore')
+    
+    # Convert to numeric
+    df["Features (k)"] = pd.to_numeric(df["Features (k)"], errors='coerce')
+    
+    # Group by 'Features (k)' and calculate mean and std for each metric
+    metrics = df.columns[5:]  # All columns after 'Seed' and 'Features (k)'
+    summary = df.groupby("Features (k)").agg(["mean", "std"])
+    
+    # Map 'Features (k)' to evenly spaced indices
+    features = summary.index
+    x_indices = range(len(features))
+    print(df)
+    # Separate OvR and OvO metrics
+    ovr_metrics = ["0 vs Rest - AUC","1 vs Rest - AUC","2 vs Rest - AUC", "OvR Macro AUC"]
+    ovo_metrics = ["0 vs 1 - AUC","0 vs 2 - AUC","1 vs 2 - AUC", "OvO Macro AUC"]
+    
+    # Find the y-axis range for all metrics
+    y_min = max(0, min(summary[(metric, "mean")].min() for metric in metrics) - 0.1)
+    y_max = max(summary[(metric, "mean")].max() for metric in metrics) + 0.1
+    
+    # Generate a colormap
+    color_map = cm.get_cmap("tab10", len(ovr_metrics))  # Tab10 colormap for 4 colors
+
+    plt.figure(figsize=(12, 8))
+    # Plot OvR metrics
+    fig_ovr, axes_ovr = plt.subplots(2, 2, figsize=(12, 8), sharex=True, sharey=True)
+    axes_ovr = axes_ovr.flatten()
+    
+    for i, (ax, metric) in enumerate(zip(axes_ovr, ovr_metrics)):
+        means = summary[(metric, "mean")]
+        stds = summary[(metric, "std")]
+        ax.errorbar(
+            x_indices,
+            means,
+            yerr=stds,
+            capsize=5,
+            marker="o",
+            color=color_map(i),
+            label=metric,
+        )
+        ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=1, label="Random Prediction")
+        ax.set_title(f"{metric}, model:{model}, sampling_strategy:{sampling_strategy}", fontsize=10)
+        ax.set_ylabel("Metric Value", fontsize=8)
+        ax.grid(alpha=0.3)
+        ax.legend(loc="best", fontsize=8)
+        ax.set_ylim(0, y_max)  # Apply the same y-axis range
+    
+    axes_ovr[-1].set_xticks(x_indices)
+    axes_ovr[-1].set_xticklabels(features)
+    axes_ovr[-1].set_xlabel("Features (k)", fontsize=10)
+    
+    plt.tight_layout()
+    fig_ovr.suptitle("OvR Metrics", fontsize=14, y=1.02)
+    plt.show()
+    
+    # Plot OvO metrics
+    fig_ovo, axes_ovo = plt.subplots(2, 2, figsize=(12, 8), sharex=True, sharey=True)
+    axes_ovo = axes_ovo.flatten()
+    
+    for i, (ax, metric) in enumerate(zip(axes_ovo, ovo_metrics)):
+        means = summary[(metric, "mean")]
+        stds = summary[(metric, "std")]
+        ax.errorbar(
+            x_indices,
+            means,
+            yerr=stds,
+            capsize=5,
+            marker="o",
+            color=color_map(i),
+            label=metric,
+        )
+        ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=1, label="Random Prediction")
+        ax.set_title(f"{metric}, model: {model}, sampling_strategy: {sampling_strategy}", fontsize=10)
+        ax.set_ylabel("Metric Value", fontsize=8)
+        ax.grid(alpha=0.3)
+        ax.legend(loc="best", fontsize=8)
+        ax.set_ylim(y_min, y_max)  # Apply the same y-axis range
+    
+    axes_ovo[-1].set_xticks(x_indices)
+    axes_ovo[-1].set_xticklabels(features)
+    axes_ovo[-1].set_xlabel("Features (k)", fontsize=10)
+    
+    plt.tight_layout()
+    fig_ovo.suptitle("OvO Metrics", fontsize=14, y=1.02)
+    plt.show()
+
+def plot_box(file_path,x_axis):
+    
+    df = pd.read_csv(file_path)
+    
+    # Convert "Features (k)" to numeric
+    df["Features (k)"] = pd.to_numeric(df["Features (k)"], errors="coerce")
+    
+    # Separate data based on number of features
+    df_10_features = df[df["Features (k)"] == 10]
+    df_all_features = df[df["Features (k)"] != 10]  # Assuming "all features" is any value other than 10
+    
+    # Set up plotting style
+    sns.set_theme(style="whitegrid")
+    
+    # Create subplots
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    
+    # Plot OvR Macro AUC for 10 features
+    sns.boxplot(data=df_10_features, x=x_axis, y="OvR Macro AUC", hue="Label", ax=axes[0, 0])
+    axes[0, 0].set_title("OvR Macro AUC (10 Features)")
+    
+    # Plot OvO Macro AUC for 10 features
+    sns.boxplot(data=df_10_features, x=x_axis, y="OvO Macro AUC", hue="Label", ax=axes[0, 1])
+    axes[0, 1].set_title("OvO Macro AUC (10 Features)")
+    
+    # Plot OvR Macro AUC for all features
+    sns.boxplot(data=df_all_features, x=x_axis, y="OvR Macro AUC", hue="Label", ax=axes[1, 0])
+    axes[1, 0].set_title("OvR Macro AUC (All Features)")
+    
+    # Plot OvO Macro AUC for all features
+    sns.boxplot(data=df_all_features, x=x_axis, y="OvO Macro AUC", hue="Label", ax=axes[1, 1])
+    axes[1, 1].set_title("OvO Macro AUC (All Features)")
+    
+    # Adjust layout and save figure
+    plt.tight_layout()
+    plt.savefig("AUC_Comparison_10_vs_All_Features.png")
+    plt.show()
+
+def classwise_auc_plot(file_path,x_axis):
+    #read df
+    df = pd.read_csv(file_path)
+    
+    # Convert "Features (k)" to numeric
+    df["Features (k)"] = pd.to_numeric(df["Features (k)"], errors="coerce")
+    
+    # Separate data based on number of features
+    df_10_features = df[df["Features (k)"] == 10]
+    df_all_features = df[df["Features (k)"] != 10]  # Assuming "all features" means not 10
+    
+    # Define class-wise AUC columns
+    class_auc_columns = [
+        "Negative control vs Rest - AUC",
+        "Patient vs Rest - AUC",
+        "Positive control vs Rest - AUC",
+        "Negative control vs Patient - AUC",
+        "Negative control vs Positive control - AUC",
+        "Patient vs Positive control - AUC"
+    ]
+    
+    # Set up plotting style
+    sns.set_theme(style="whitegrid")
+    
+    # --- PLOT CLASS-WISE AUCs ---
+    for col in class_auc_columns:
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+        # Plot for 10 features
+        sns.boxplot(data=df_10_features, x=x_axis, y=col, hue="Label", ax=axes[0])
+        axes[0].set_title(f"{col} (10 Features)")
+    
+        # Plot for all features
+        sns.boxplot(data=df_all_features, x=x_axis, y=col, hue="Label", ax=axes[1])
+        axes[1].set_title(f"{col} (All Features)")
+    
+        # Adjust layout and save the figure
+        plt.tight_layout()
+        filename = col.replace(" ", "_").replace("-", "").replace("/", "_") + "_Comparison.png"
+        plt.savefig(filename)
+        plt.show()
+
 
 
 if __name__ == "__main__":
@@ -344,7 +666,10 @@ if __name__ == "__main__":
         "--ks", type=int, nargs="+", required=True, help="list of values of k"
     )
     parser.add_argument("--n_seeds", type=int, default=2, help="number of seeds")
-
+    parser.add_argument("--label", type=str, required=True, help="add label for clarity")
+    parser.add_argument("--model", type=str, required=True, help="choose model :['rf', 'XGB', 'ETC', 'lgbm' ]")
+    parser.add_argument("--sampling_strategy", type=str, required=True, help="choose sampling strategy: ['No Sampling','Random OverSampling','SMOTE','Random UnderSampling','NearMiss (v1)','NearMiss (v2)','NearMiss (v3)']")
+    
     args = parser.parse_args()
 
     # reading str file paths
@@ -353,5 +678,8 @@ if __name__ == "__main__":
 
     # flattening y into 1D array
     y = y["target"].values.ravel()
+    result_path="results/appended_results.csv"
 
-    run_classification(X, y, args.ks, args.n_seeds, "test_clf.csv")
+    run_classification(X, y, args.ks, args.n_seeds,result_path, args.label,args.model, args.sampling_strategy)
+    bar_plot(result_path,args.ks)
+    plot_all_modes(result_path)
