@@ -328,6 +328,7 @@ def store_results(seed_results, output):
     # '''
     
     final_results = []
+    metrics = ["AUC", "Precision", "Recall", "F1", "MCC"]
     
     for seed, ks_results in seed_results.items():
         for k, result_info in ks_results.items():
@@ -335,24 +336,45 @@ def store_results(seed_results, output):
             model = result_info["Model"]
             sampling_strategy = result_info["Sampling_Strategy"]
             label=result_info["Label"]
-            
-            # Collect all relevant information in a list
-            final_results.append({
-                "Seed": seed,
-                "Features (k)": k,
-                "Label":label,
-                "Model": model,
-                "Sampling_Strategy": sampling_strategy,
-                **result, 
-            })
+
+            # Determine Class and Type
+            for class_value, value in result.items():
+                if "Macro" in class_value:
+                    class_name = "Macro"
+                    type_name = "OvR" if "OvR" in class_value else "OvO"
+                elif "vs Rest" in class_value:
+                    class_name = class_value.split(" vs Rest")[0]
+                    type_name = "OvR"
+                else: 
+                    class_name = class_value.split(" - ")[0]
+                    type_name = "OvO"
+
+                # Extract metric values for this class/type
+                metric_values = {}
+                for metric in metrics:
+                    # Look for key containing both metric name and class_name
+                    metric_key = next((k for k in result if metric in k and class_name in k), None)
+                    metric_values[metric] = result[metric_key] if metric_key else np.nan    
+                
+                # Collect all relevant information in a list
+                final_results.append({
+                    "Seed": seed,
+                    "Features (k)": k,
+                    "Label":label,
+                    "Model": model,
+                    "Sampling_Strategy": sampling_strategy,
+                    "Class":class_name,
+                    "Type" : type_name,
+                    **metric_values       
+                })
     df = pd.DataFrame(final_results)
 
-    #Set multi-level index names for clarity
+    '''#Set multi-level index names for clarity
     df.set_index(["Seed", "Features (k)", "Label", "Model", "Sampling_Strategy"], inplace=True)
 
     df.index.names = ["Seed", "Features (k)","Label","Model","Sampling_Strategy"]
     # Display the DataFrame
-    df = df.reset_index()
+    df = df.reset_index()'''
 
     df.to_csv(output, mode='a', header=not os.path.exists(output), index=False)
 
