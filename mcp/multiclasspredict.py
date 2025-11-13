@@ -31,6 +31,8 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
     roc_auc_score,
     roc_curve,
+    precision_recall_curve,
+
 )
 from sklearn.model_selection import (
     GridSearchCV,
@@ -41,12 +43,13 @@ from sklearn.model_selection import (
     train_test_split,
 )
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.preprocessing import LabelBinarizer, LabelEncoder, label_binarize
+from sklearn.preprocessing import LabelBinarizer, LabelEncoder, label_binarize, StandardScaler
 from sklearn.svm import SVC
 
 # from tabpfn import TabPFNClassifier
 # from tabpfn_extensions.post_hoc_ensembles.sklearn_interface import AutoTabPFNClassifier
 from xgboost import XGBClassifier
+
 
 # Suppress FutureWarnings
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -245,37 +248,38 @@ def repeat_clf(n_seeds, ks, X, y, label, model, sampling_strategy):
             if model == "rf":
                 ml_model = rf
                 ml_model_grid = {
-                    "estimator__classification__n_estimators": [
-                        100
-                    ],  # Number of trees in the forest
-                    "estimator__classification__max_features": [
-                        "sqrt"
-                    ],  # Feature selection strategy
-                    "estimator__classification__criterion": [
-                        "entropy"
-                    ],  # Split criterion
-                    "estimator__classification__min_samples_leaf": [
-                        3
-                    ],  # Minimum samples per leaf
+                    "estimator__classification__n_estimators":[100, 300, 500],  # Number of trees in the forest
+                    "estimator__classification__max_depth": [None, 10, 20, 30],  # tree depth
+                    "estimator__classification__max_features": ["sqrt", "log2"],  # Feature selection strategy
+                    "estimator__classification__criterion": ["entropy"],  # Split criterion
+                    "estimator__classification__min_samples_leaf": [1, 2, 4],  # Minimum samples per leaf
                 }
             elif model == "xgb":
                 ml_model = XGBClassifier(
                     use_label_encoder=False, eval_metric="logloss", random_state=seed
                 )
                 ml_model_grid = {
-                    "estimator__classification__n_estimators": [100],
-                    "estimator__classification__gamma": [0],
-                    "estimator__classification__max_depth": [6],
+                    "estimator__classification__n_estimators": [100, 300, 500], 
+                    "estimator__classification__gamma": [0, 0.1, 0.3], # min loss reduction
+                    "estimator__classification__max_depth": [3, 5, 7], 
+                    "estimator__classification__learning_rate": [0.01, 0.05, 0.1], # step size
                 }
             elif model == "etc":
                 ml_model = ExtraTreesClassifier(random_state=seed)
                 ml_model_grid = {
-                    "estimator__classification__n_estimators": [100],
+                    "estimator__classification__n_estimators": [100, 300, 500],
+                    "estimator__classification__max_depth": [None, 10, 20],       # tree depth
+                    "estimator__classification__max_features": ["sqrt", "log2"],  # features per split
+                    "estimator__classification__min_samples_leaf": [1, 2, 4],     # min leaf samples
+                    
                 }
             elif model == "lgbm":
                 ml_model = LGBMClassifier(random_state=seed, verbose=-1)
                 ml_model_grid = {
-                    "estimator__classification__n_estimators": [100],
+                    "estimator__classification__n_estimators": [100, 300, 500],  
+                    "estimator__classification__learning_rate": [0.01, 0.05, 0.1],
+                    "estimator__classification__num_leaves": [31, 63, 127],      # leaves per tree
+                            
                 }
 
             # If there is a sampler, include it in the pipeline
@@ -324,6 +328,7 @@ def store_results(seed_results, output):
     # '''
     
     final_results = []
+    metrics = ["AUC", "Precision", "Recall", "F1", "MCC"]
     
     for seed, ks_results in seed_results.items():
         for k, result_info in ks_results.items():
@@ -331,24 +336,45 @@ def store_results(seed_results, output):
             model = result_info["Model"]
             sampling_strategy = result_info["Sampling_Strategy"]
             label=result_info["Label"]
-            
-            # Collect all relevant information in a list
-            final_results.append({
-                "Seed": seed,
-                "Features (k)": k,
-                "Label":label,
-                "Model": model,
-                "Sampling_Strategy": sampling_strategy,
-                **result, 
-            })
+
+            # Determine Class and Type
+            for class_value, value in result.items():
+                if "Macro" in class_value:
+                    class_name = "Macro"
+                    type_name = "OvR" if "OvR" in class_value else "OvO"
+                elif "vs Rest" in class_value:
+                    class_name = class_value.split(" vs Rest")[0]
+                    type_name = "OvR"
+                else: 
+                    class_name = class_value.split(" - ")[0]
+                    type_name = "OvO"
+
+                # Extract metric values for this class/type
+                metric_values = {}
+                for metric in metrics:
+                    # Look for key containing both metric name and class_name
+                    metric_key = next((k for k in result if metric in k and class_name in k), None)
+                    metric_values[metric] = result[metric_key] if metric_key else np.nan    
+                
+                # Collect all relevant information in a list
+                final_results.append({
+                    "Seed": seed,
+                    "Features (k)": k,
+                    "Label":label,
+                    "Model": model,
+                    "Sampling_Strategy": sampling_strategy,
+                    "Class":class_name,
+                    "Type" : type_name,
+                    **metric_values       
+                })
     df = pd.DataFrame(final_results)
 
-    #Set multi-level index names for clarity
+    '''#Set multi-level index names for clarity
     df.set_index(["Seed", "Features (k)", "Label", "Model", "Sampling_Strategy"], inplace=True)
 
     df.index.names = ["Seed", "Features (k)","Label","Model","Sampling_Strategy"]
     # Display the DataFrame
-    df = df.reset_index()
+    df = df.reset_index()'''
 
     df.to_csv(output, mode='a', header=not os.path.exists(output), index=False)
 
