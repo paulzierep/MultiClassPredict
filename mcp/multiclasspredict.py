@@ -32,7 +32,6 @@ from sklearn.metrics import (
     roc_auc_score,
     roc_curve,
     precision_recall_curve,
-
 )
 from sklearn.model_selection import (
     GridSearchCV,
@@ -49,12 +48,18 @@ from sklearn.svm import SVC
 # from tabpfn import TabPFNClassifier
 # from tabpfn_extensions.post_hoc_ensembles.sklearn_interface import AutoTabPFNClassifier
 from xgboost import XGBClassifier
-
+from itertools import combinations
 
 # Suppress FutureWarnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 
+
+def split_classes(X, y):
+    return {
+        (c1, c2): (X[(y == c1) | (y == c2)], y[(y == c1) | (y == c2)])
+        for c1, c2 in itertools.combinations(np.unique(y), 2)
+    }
 
 
 def split_classes(X, y):
@@ -67,7 +72,7 @@ def split_classes(X, y):
 def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
     results = {}
     le = LabelEncoder()
-    y = le.fit_transform(y)
+    y_encoded = le.fit_transform(y)
     class_names = le.classes_
 
     # Stratified K-Folds
@@ -78,140 +83,174 @@ def ovo_and_ova_multiclass_auc(X, y, base_clf, p_grid, random_state):
     # One-vs-Rest Classification
     ####################
     print("Performing One vs Rest classification")
-    ovr_clf = GridSearchCV(
-        estimator=OneVsRestClassifier(base_clf),
-        param_grid=p_grid,
-        cv=inner_cv,
-        scoring="roc_auc_ovr",
-    )
-    y_score = cross_val_predict(ovr_clf, X, y, cv=outer_cv, method="predict_proba")
 
-    # Calculate AUC for each class
-    y_bin = LabelBinarizer().fit_transform(y)
-    ovr_auc = roc_auc_score(y_bin, y_score, multi_class="ovr", average=None)
-    for idx, auc_val in enumerate(ovr_auc):
-        print(f"AUC for class '{class_names[idx]}': {auc_val:.4f}")
-        results[f"{class_names[idx]} vs Rest - AUC"] = auc_val
+    #checking grid search enabled or not 
+    if p_grid is not None:
+        ovr_clf = GridSearchCV(
+            estimator=OneVsRestClassifier(base_clf),
+            param_grid=p_grid,
+            cv=inner_cv,
+            scoring="roc_auc_ovr",
+        )
+    else:
+        ovr_clf = OneVsRestClassifier(base_clf)
+   
+    
+    y_score = cross_val_predict(ovr_clf, X, y_encoded, cv=outer_cv, method="predict_proba") 
+    y_pred = np.argmax(y_score, axis=1) 
+    
+    # Per-class metrics for OvR 
+    per_class_precision = [] 
+    per_class_recall = [] 
+    per_class_f1 = [] 
+    per_class_mcc = []
 
-    # Calculate precision, recall, F1, and MCC for each class in OvR
-    y_pred_ovr = np.argmax(y_score, axis=1)
-    precision, recall, f1, _ = precision_recall_fscore_support(
-        y, y_pred_ovr, average=None
-    )
-    for idx in range(len(class_names)):
-        results[f"{class_names[idx]} vs Rest - Precision"] = precision[idx]
-        results[f"{class_names[idx]} vs Rest - Recall"] = recall[idx]
-        results[f"{class_names[idx]} vs Rest - F1"] = f1[idx]
+    for idx, cls in enumerate(class_names): 
+        y_bin = (y_encoded == idx).astype(int) 
+        cls_score = y_score[:, idx] 
+        
+        # Ensure minority class is positive 
+        if np.sum(y_bin) > np.sum(1 - y_bin): 
+            y_bin = 1 - y_bin 
+            cls_score = 1 - cls_score 
+            
+        y_pred_bin = (y_pred == idx).astype(int) 
+        precision, recall, f1, _ = precision_recall_fscore_support(y_bin, y_pred_bin, average="binary") 
+        mcc = matthews_corrcoef(y_bin, y_pred_bin) 
+        prec_curve, rec_curve, _ = precision_recall_curve(y_bin, cls_score) 
+        pr_auc_val = auc(rec_curve, prec_curve) 
+        roc_auc_val = roc_auc_score(y_bin, cls_score) 
+        
+        results[f"{cls} vs Rest - Precision"] = precision 
+        results[f"{cls} vs Rest - Recall"] = recall 
+        results[f"{cls} vs Rest - F1"] = f1 
+        results[f"{cls} vs Rest - MCC"] = mcc 
+        results[f"{cls} vs Rest - PR AUC"] = pr_auc_val 
+        results[f"{cls} vs Rest - AUC"] = roc_auc_val 
+        
+        per_class_precision.append(precision) 
+        per_class_recall.append(recall) 
+        per_class_f1.append(f1) 
+        per_class_mcc.append(mcc) 
+    
+    # Macro metrics OvR 
 
-        # Calculate MCC for each class in OvR
-        mcc = matthews_corrcoef(y, (y_pred_ovr == idx).astype(int))
-        results[f"{class_names[idx]} vs Rest - MCC"] = mcc
+    macro_ovr_auc = np.mean([results[f"{cls} vs Rest - AUC"] for cls in class_names]) 
+    macro_ovr_precision = np.mean(per_class_precision) 
+    macro_ovr_recall = np.mean(per_class_recall) 
+    macro_ovr_f1 = np.mean(per_class_f1) 
+    macro_ovr_mcc = np.mean(per_class_mcc)
+    macro_ovr_pr_auc = np.mean([results[f"{cls} vs Rest - PR AUC"] for cls in class_names])
 
-    # Calculate macro AUC, precision, recall, F1, and MCC for OvR
-    macro_ovr_auc = roc_auc_score(y_bin, y_score, multi_class="ovr", average="macro")
-    macro_ovr_precision = np.mean(precision)
-    macro_ovr_recall = np.mean(recall)
-    macro_ovr_f1 = np.mean(f1)
-    macro_ovr_mcc = np.mean(
-        [
-            matthews_corrcoef(y, (y_pred_ovr == idx).astype(int))
-            for idx in range(len(class_names))
-        ]
-    )
-
+    
     results["OvR Macro AUC"] = macro_ovr_auc
     results["OvR Macro Precision"] = macro_ovr_precision
     results["OvR Macro Recall"] = macro_ovr_recall
-    results["OvR Macro F1"] = macro_ovr_f1
-    results["OvR Macro MCC"] = macro_ovr_mcc
+    results["OvR Macro F1"] = macro_ovr_f1 
+    results["OvR Macro MCC"] =  macro_ovr_mcc
+    results["OvR Macro PR AUC"] = macro_ovr_pr_auc 
 
     print(f"Macro AUC (OvR): {macro_ovr_auc:.4f}")
     print(f"Macro Precision (OvR): {macro_ovr_precision:.4f}")
     print(f"Macro Recall (OvR): {macro_ovr_recall:.4f}")
     print(f"Macro F1 (OvR): {macro_ovr_f1:.4f}")
     print(f"Macro MCC (OvR): {macro_ovr_mcc:.4f}")
+    print(f"Macro PR AUC (OvR): {macro_ovr_pr_auc:.4f}")
 
     ####################
     # One-vs-One Classification
     ####################
     print("Performing One vs One classification")
-    ovo_auc = {}
-    ovo_precision = {}
-    ovo_recall = {}
-    ovo_f1 = {}
-    ovo_mcc = {}
-    class_pairs = split_classes(X, y)
 
-    for (c1, c2), (X_subset, y_subset) in class_pairs.items():
-        ovo_clf = GridSearchCV(
-            estimator=base_clf,
-            param_grid={k.replace("estimator__", ""): v for k, v in p_grid.items()},
-            cv=inner_cv,
-            scoring="roc_auc",
-        )
-        y_score = cross_val_predict(
-            ovo_clf, X_subset, y_subset, cv=outer_cv, method="predict_proba"
-        )
-        y_binary = (y_subset == c2).astype(int)
-        fpr, tpr, _ = roc_curve(y_binary, y_score[:, 1])
-        auc_val = auc(fpr, tpr)
+    ovo_auc = {} 
+    ovo_precision = {} 
+    ovo_recall = {} 
+    ovo_f1 = {} 
+    ovo_mcc = {} 
+    
+    for c1, c2 in combinations(range(len(class_names)), 2): 
+        mask = np.isin(y_encoded, [c1, c2]) 
+        X_pair, y_pair = X[mask], y_encoded[mask] 
 
-        # Compute precision, recall, F1, and MCC for each class pair (OvO)
-        y_pred_ovo = np.argmax(y_score, axis=1)
-        precision, recall, f1, _ = precision_recall_fscore_support(
-            y_binary, y_pred_ovo, average="binary"
-        )
-
-        # MCC for each class pair (OvO)
-        mcc = matthews_corrcoef(y_binary, y_pred_ovo)
-
-        results[
-            f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - AUC"
-        ] = auc_val
-        results[
-            f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - Precision"
-        ] = precision
-        results[
-            f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - Recall"
-        ] = recall
-        results[
-            f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - F1"
-        ] = f1
-        results[
-            f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]} - MCC"
-        ] = mcc
-
-        ovo_auc[(c1, c2)] = auc_val
-        ovo_precision[(c1, c2)] = precision
-        ovo_recall[(c1, c2)] = recall
-        ovo_f1[(c1, c2)] = f1
-        ovo_mcc[(c1, c2)] = mcc
-
-    # Calculate macro AUC, precision, recall, F1, and MCC for OvO
-    macro_ovo_auc = np.mean(
-        list(ovo_auc.values())
-    )  # Macro: Average AUC over all class pairs
+        # checking grid search enabled or not
+        if p_grid is not None:
+            ovo_clf = GridSearchCV(
+                estimator=base_clf,
+                param_grid=p_grid,
+                cv=inner_cv,
+                scoring="roc_auc"
+            )
+        else:
+            ovo_clf = base_clf
+            
+        y_score_pair = cross_val_predict(ovo_clf, X_pair, y_pair, cv=outer_cv, method="predict_proba") 
+        
+        # Identify minority 
+        
+        vals, counts = np.unique(y_pair, return_counts=True) 
+        minority = vals[np.argmin(counts)] 
+        minority_idx = np.where([c1, c2] == minority)[0][0] 
+        
+        y_bin = (y_pair == minority).astype(int) 
+        y_score_cls = y_score_pair[:, minority_idx] 
+        
+        # Ensure minority positive 
+        
+        if np.sum(y_bin) > np.sum(1 - y_bin): 
+            y_bin = 1 - y_bin 
+            y_score_cls = 1 - y_score_cls 
+            
+        y_pred_bin = (np.argmax(y_score_pair, axis=1) == minority_idx).astype(int)
+                                                                             
+        precision, recall, f1, _ = precision_recall_fscore_support(y_bin, y_pred_bin, average="binary") 
+        mcc = matthews_corrcoef(y_bin, y_pred_bin) 
+        prec_curve, rec_curve, _ = precision_recall_curve(y_bin, y_score_cls) 
+        pr_auc_val = auc(rec_curve, prec_curve) 
+        roc_auc_val = roc_auc_score(y_bin, y_score_cls)
+        
+        pair_name = f"{le.inverse_transform([c1])[0]} vs {le.inverse_transform([c2])[0]}" 
+        
+        results[f"{pair_name} - Precision"] = precision 
+        results[f"{pair_name} - Recall"] = recall 
+        results[f"{pair_name} - F1"] = f1 
+        results[f"{pair_name} - MCC"] = mcc 
+        results[f"{pair_name} - PR AUC"] = pr_auc_val 
+        results[f"{pair_name} - AUC"] = roc_auc_val 
+        
+        ovo_auc[(c1, c2)] = roc_auc_val 
+        ovo_precision[(c1, c2)] = precision 
+        ovo_recall[(c1, c2)] = recall 
+        ovo_f1[(c1, c2)] = f1 
+        ovo_mcc[(c1, c2)] = mcc 
+        
+        
+    # Macro metrics OvO 
+    macro_ovo_auc = np.mean(list(ovo_auc.values()))
     macro_ovo_precision = np.mean(list(ovo_precision.values()))
-    macro_ovo_recall = np.mean(list(ovo_recall.values()))
-    macro_ovo_f1 = np.mean(list(ovo_f1.values()))
-    macro_ovo_mcc = np.mean(list(ovo_mcc.values()))
+    macro_ovo_recall = np.mean(list(ovo_recall.values())) 
+    macro_ovo_f1 = np.mean(list(ovo_f1.values())) 
+    macro_ovo_mcc = np.mean(list(ovo_mcc.values())) 
+    macro_ovo_pr_auc = np.mean([results[k] for k in results if "vs" in k and "PR AUC" in k]) 
 
-    results["OvO Macro AUC"] = macro_ovo_auc
+    results["OvO Macro AUC"] =  macro_ovo_auc
     results["OvO Macro Precision"] = macro_ovo_precision
     results["OvO Macro Recall"] = macro_ovo_recall
     results["OvO Macro F1"] = macro_ovo_f1
     results["OvO Macro MCC"] = macro_ovo_mcc
+    results["OvO Macro PR AUC"] =  macro_ovo_pr_auc
+
 
     print(f"Macro AUC (OvO): {macro_ovo_auc:.4f}")
     print(f"Macro Precision (OvO): {macro_ovo_precision:.4f}")
     print(f"Macro Recall (OvO): {macro_ovo_recall:.4f}")
     print(f"Macro F1 (OvO): {macro_ovo_f1:.4f}")
     print(f"Macro MCC (OvO): {macro_ovo_mcc:.4f}")
+    print(f"Macro PR AUC (OvO): {macro_ovo_pr_auc:.4f}")
 
     return results
 
 
-def repeat_clf(n_seeds, ks, X, y, label, model, sampling_strategy):
+def repeat_clf(n_seeds, ks, X, y, label, model, sampling_strategy, use_grid=False):
 
     print(ks)
     print(n_seeds)
@@ -295,9 +334,15 @@ def repeat_clf(n_seeds, ks, X, y, label, model, sampling_strategy):
             ###########################
 
             # Run the classification with the sampling strategy
-            results = ovo_and_ova_multiclass_auc(
-                X, y, pipeline, ml_model_grid, random_state=seed
-            )
+            if use_grid:
+                results = ovo_and_ova_multiclass_auc(
+                    X, y, pipeline, ml_model_grid, random_state=seed
+                )
+            else:
+                results = ovo_and_ova_multiclass_auc(
+                    X, y, pipeline, None, random_state=seed
+                )
+                       
 
             print(results)
 
@@ -328,7 +373,7 @@ def store_results(seed_results, output):
     # '''
     
     final_results = []
-    metrics = ["AUC", "Precision", "Recall", "F1", "MCC"]
+    metrics = ["AUC", "Precision", "Recall", "F1", "MCC", "PR"]
     
     for seed, ks_results in seed_results.items():
         for k, result_info in ks_results.items():
@@ -381,7 +426,7 @@ def store_results(seed_results, output):
     print(df)
 
 
-def run_classification(X, y, ks, n_seeds,output, label,model, sampling_strategy):
+def run_classification(X, y, ks, n_seeds,output, label,model, sampling_strategy,use_grid=False):
 
     # Ensure ks does not exceed the number of columns in X
     max_features = len(X.columns)
@@ -389,7 +434,7 @@ def run_classification(X, y, ks, n_seeds,output, label,model, sampling_strategy)
     if max_features not in ks:
         ks.append(max_features)
 
-    seed_results = repeat_clf(n_seeds, ks, X, y, label,model, sampling_strategy)
+    seed_results = repeat_clf(n_seeds, ks, X, y, label,model, sampling_strategy, use_grid=use_grid)
     store_results(seed_results, output)
 
 
