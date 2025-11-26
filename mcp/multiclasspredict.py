@@ -55,11 +55,6 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 
-def split_classes(X, y):
-    return {
-        (c1, c2): (X[(y == c1) | (y == c2)], y[(y == c1) | (y == c2)])
-        for c1, c2 in itertools.combinations(np.unique(y), 2)
-    }
 
 
 def split_classes(X, y):
